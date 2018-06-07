@@ -62,7 +62,6 @@ class Dog
     DB[:conn].execute(sql, id).map do |row|
       self.new_from_db(row)
     end.first
-
   end
 
   def self.new_from_db(row)
@@ -72,6 +71,14 @@ class Dog
     self.new(id: id, name: name, breed: breed)
   end
 
-
+  def self.find_or_create_by(name:, breed:)
+    dog = DB[:conn].execute("SELECT * FROM dogs WHERE name ? AND breed = ?", name, breed)
+    if !dog.empty?
+      dog_row = dog[0]
+      Dog.new(id: dog_row[0], name: dog_row[1], breed: dog_row[2])
+    else
+      self.create(name: name, breed: breed)
+    end
+  end
 
 end
